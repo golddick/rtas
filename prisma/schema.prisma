@@ -1,0 +1,596 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ADMIN MANAGEMENT
+// ============================================================================
+
+
+model Admin {
+  id                  String    @id @default("")
+  email               String    @unique
+  fullName            String
+  passwordHash        String
+  department          String?
+  phoneNumber         String?
+  role                AdminRole @default(ADMIN)
+  isActive            Boolean   @default(true)
+  lastLogin           DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  emailVerifiedAt     DateTime  @default(now())
+  isEmailVerified     Boolean    @default(false)
+  
+  // Relations
+  actions       AdminAction[]
+  notifications Notification[]
+  sentInvitations     HODInvitation[]  @relation("InvitedBy")
+}
+
+model AdminAction {
+  id          String       @id @default("")
+  adminId     String
+  admin       Admin        @relation(fields: [adminId], references: [id])
+  actionType  ActionType
+  description String
+  ipAddress   String?
+  createdAt   DateTime     @default(now())
+}
+
+model AdminInvitation {
+  id         String       @id @default("")
+  email      String       @unique
+  code       String       @unique
+  role       AdminRole    @default(ADMIN)
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdBy  String
+  createdAt  DateTime     @default(now())
+}
+
+
+// ============================================================================
+// NOTIFICATION MANAGEMENT
+// ============================================================================
+
+model Notification {
+  id        String    @id @default("")
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id])
+  adminId   String?
+  admin     Admin?    @relation(fields: [adminId], references: [id])
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+// ============================================================================
+// INSTITUTION MANAGEMENT
+// ============================================================================
+
+model Institution {
+  id          String            @id @default("")
+  name        String            @unique
+  code        String            @unique
+  slug        String            @unique
+  description String?
+  address     String?
+  website     String?
+  logoUrl     String?
+  status      InstitutionStatus @default(ACTIVE)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Relations
+  departments    Department[]
+  users          User[]
+  proposals      Proposal[]
+  researchTopics ResearchTopic[]
+  hodInvitations HODInvitation[]
+
+  @@index([code])
+  @@index([slug])
+}
+
+// ============================================================================
+// DEPARTMENT MANAGEMENT
+// ============================================================================
+
+model Department {
+  id          String   @id @default("")
+  name        String
+  code        String    @unique
+  faculty     String
+  description String?
+  maxStudents Int      @default(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Institution FK — every department belongs to one institution
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  // HOD FK — optional one-to-one (set after HOD accepts invite)
+  hodId String? @unique
+  hod   User?   @relation("DepartmentHOD", fields: [hodId], references: [id], onDelete: SetNull)
+
+  // Relations
+  supervisors    User[]          @relation("DepartmentSupervisors")
+  students       User[]          @relation("DepartmentStudents")
+  proposals      Proposal[]
+  researchTopics ResearchTopic[]
+  hodInvitations HODInvitation[]
+
+  // Name and code must be unique within an institution
+  @@unique([name, institutionId])
+  @@unique([code, institutionId])
+  @@index([institutionId])
+  @@index([hodId])
+}
+
+// ============================================================================
+// USER MANAGEMENT & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id                String     @id @default("")
+  email             String     @unique
+  registrationEmail String     @unique
+  additionalEmail   String?
+  password          String
+  fullName          String
+  phone             String?
+  role              UserRole   @default(STUDENT)
+  avatar            String?
+  status            UserStatus @default(ACTIVE)
+  emailVerified     Boolean    @default(false)
+  otpCode           String?
+  otpExpiry         DateTime?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  // ── Institution FK (every user belongs to one institution) ───────────────
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+
+  // ── Student: department they are enrolled in ─────────────────────────────
+  departmentId String?
+  department   Department? @relation("DepartmentStudents", fields: [departmentId], references: [id], onDelete: SetNull)
+
+  // ── HOD: back-relation driven by Department.hodId (no extra FK needed) ───
+  hodDepartment Department? @relation("DepartmentHOD")
+
+  // ── Supervisor: department they teach in ─────────────────────────────────
+  supervisorDepartmentId String?
+  supervisorDepartment   Department? @relation("DepartmentSupervisors", fields: [supervisorDepartmentId], references: [id], onDelete: SetNull)
+
+  // ── Student-specific ─────────────────────────────────────────────────────
+  matricNumber String?  @unique
+  program      Program?
+
+  // ── Staff-specific ────────────────────────────────────────────────────────
+  staffNumber String? @unique
+
+  // ── Supervisor–Student self-relation ─────────────────────────────────────
+  supervisorId       String?
+  supervisor         User?   @relation("StudentSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
+  supervisedStudents User[]  @relation("StudentSupervisor")
+
+  // ── Relations ─────────────────────────────────────────────────────────────
+  studentProposals    Proposal[]       @relation("StudentProposals")
+  supervisorProposals Proposal[]       @relation("SupervisorProposals")
+  proposalReviews     ProposalReview[]
+  researchTopics      ResearchTopic[]
+  topicIntrest        TopicInterest[]  @relation("StudentTopicIntrest")
+  projectPlans        ProjectPlan[]
+  history             UserHistory[]
+  receivedInvitations HODInvitation[]  @relation("InvitedUser")
+  notifications       Notification[]
+  sentMessages        Message[] @relation("MessageSender")
+  receivedMessages    Message[] @relation("MessageReceiver")
+  convoPpt            ConversationParticipant[]
+  
+
+  @@index([email])
+  @@index([role])
+  @@index([institutionId])
+  @@index([departmentId])
+  @@index([supervisorId])
+}
+
+// ============================================================================
+// HOD INVITATION
+// ============================================================================
+
+model HODInvitation {
+  id        String           @id @default("")
+  email     String
+  code     String           @unique
+  status    InvitationStatus @default(PENDING)
+  expiresAt DateTime
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Institution the invite belongs to
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  // Department the HOD is being invited to head
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  // Admin who sent the invite
+  invitedById String
+  invitedBy   Admin   @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  // User account linked after the invite is accepted (null until then)
+  invitedUserId String?
+  invitedUser   User?   @relation("InvitedUser", fields: [invitedUserId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([code])
+  @@index([departmentId])
+  @@index([institutionId])
+}
+
+// ============================================================================
+// PROPOSAL MANAGEMENT
+// ============================================================================
+
+model Proposal {
+  id            String         @id @default("")
+  title         String
+  description   String         @db.Text
+  status        ProposalStatus @default(SUBMITTED)
+  score         Int?
+  submittedDate DateTime?
+  reviewDate    DateTime?
+  approvedDate  DateTime?
+  documentUrl   String?
+  documentName  String?
+  documentSize  Float?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Student who submitted
+  studentId String
+  student   User   @relation("StudentProposals", fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Assigned supervisor (optional at submission time)
+  supervisorId String?
+  supervisor   User?   @relation("SupervisorProposals", fields: [supervisorId], references: [id], onDelete: SetNull)
+
+  // Department submitted to
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  // Institution (denormalised for efficient cross-department queries)
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  reviews ProposalReview[]
+
+  projectPlan ProjectPlan?
+
+  @@index([studentId])
+  @@index([supervisorId])
+  @@index([departmentId])
+  @@index([institutionId])
+  @@index([status])
+}
+
+model ProposalReview {
+  id        String       @id @default("")
+  feedback  String       @db.Text
+  rating    Int
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  proposalId String
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  reviewerId String
+  reviewer   User   @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId])
+  @@index([reviewerId])
+}
+
+// ============================================================================
+// RESEARCH TOPICS
+// ============================================================================
+
+model ResearchTopic {
+  id               String      @id @default("")
+  title            String
+  description      String      @db.Text
+  category         String
+  keywords         String      @db.Text // JSON array stored as string
+  difficulty       String      @default("Intermediate")
+  status           TopicStatus @default(ACTIVE)
+  studentInterests Int         @default(0)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  // Supervisor who created the topic
+  supervisorId String
+  supervisor   User   @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
+
+  // Department the topic is associated with
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  // Institution (denormalised for efficient cross-department queries)
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  interests TopicInterest[]
+
+  @@index([supervisorId])
+  @@index([departmentId])
+  @@index([institutionId])
+  @@index([status])
+}
+
+model TopicInterest {
+  id           String        @id @default("")
+  interestedAt DateTime      @default(now())
+
+  topicId String
+  topic   ResearchTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   User @relation("StudentTopicIntrest", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, studentId])
+  @@index([topicId])
+  @@index([studentId])
+}
+
+// ============================================================================
+// PROJECT PLANNING
+// ============================================================================
+
+model ProjectPlan {
+  id          String     @id @default("")
+  title       String
+  description String     @db.Text
+  startDate   DateTime?
+  endDate     DateTime?
+  durationMonths Int?
+  status      PlanStatus @default(DRAFT)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  studentId String
+  student   User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  proposalId String @unique   
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  milestones Milestone[]
+
+  @@index([studentId])
+}
+
+model Milestone {
+  id          String          @id @default("")
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      MilestoneStatus @default(PENDING)
+  order       Int             @default(0)
+  completion  Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  planId String
+  plan   ProjectPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+}
+
+// ============================================================================
+// USER HISTORY & AUDIT
+// ============================================================================
+
+model UserHistory {
+  id        String   @id @default("")
+  event     String
+  title     String
+  details   String?  @db.Text
+  status    String   @default("completed")
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([event])
+}
+
+
+// ============================================================================
+// Conversations & Messages
+// ============================================================================
+
+
+model Conversation {
+  id        String   @id @default("")
+  createdAt DateTime @default(now())
+  status    ConversationStatus @default(ACTIVE)
+  updatedAt DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  lastMessageAt DateTime?
+  lastMessage   String?
+  unreadCount   Int      @default(0)
+}
+
+model ConversationParticipant {
+  id        String   @id @default("")
+  userId         String
+  conversationId String
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  role String? // "student", "supervisor", "hod"
+
+  @@unique([userId, conversationId])
+}
+
+model Message {
+  id        String   @id @default("")
+  content   String   @db.Text
+
+  senderId  String
+  sender    User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId String
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Email tracking
+  emailSent      Boolean @default(false)
+  emailSentAt    DateTime?
+  emailMessageId String?
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+  @@index([isRead])
+}
+
+
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  STUDENT
+  SUPERVISOR
+  HOD
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_VERIFICATION
+  SUSPENDED
+}
+
+enum Program {
+  BSC
+  MSC
+  PHD
+}
+
+enum InstitutionStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum ProposalStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  REVISION_REQUESTED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVISION_REQUESTED
+}
+
+enum TopicStatus {
+  ACTIVE
+  ARCHIVED
+  INACTIVE
+}
+
+enum PlanStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MODERATOR
+}
+
+enum ActionType {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  INVITE
+  FAILED
+  USER_BLOCK
+  USER_UNBLOCK
+  SYSTEM_CONFIG
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
