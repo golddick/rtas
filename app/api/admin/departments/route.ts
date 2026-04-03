@@ -94,7 +94,7 @@ export async function GET() {
       }
     })
 
-    // Format with counts
+    // Format with counts  
     const formatted = departments.map(dept => ({
       ...dept,
       supervisorCount: dept._count.supervisors,
@@ -352,7 +352,7 @@ export async function POST(request: NextRequest) {
 
 // Helper function to calculate approval rate
 function calculateApprovalRate(proposalCount: number): string {
-  return '87%'
+  return '0%'
 }
 
 

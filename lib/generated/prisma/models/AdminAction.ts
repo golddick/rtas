@@ -165,7 +165,7 @@ export type AdminActionGroupByOutputType = {
   _max: AdminActionMaxAggregateOutputType | null
 }
 
-export type GetAdminActionGroupByPayload<T extends AdminActionGroupByArgs> = Prisma.PrismaPromise<
+type GetAdminActionGroupByPayload<T extends AdminActionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AdminActionGroupByOutputType, T['by']> &
       {

@@ -9,14 +9,6 @@ const _geistMono = Geist_Mono({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'RTAS - Research Topic Approval Workflow System',
   description: 'Streamline your research supervision process from allocation to approval',
-  generator: 'v0.app',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    themeColor: '#2563eb',
-  },
 }
 
 export default function RootLayout({

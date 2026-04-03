@@ -17,7 +17,7 @@ export default function OTPVerification({ email, otpId: initialOtpId, purpose, o
   const { verifyOTP, resendOTP, isLoading, error, clearError } = useAuthStore()
   
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
-  const [timeLeft, setTimeLeft] = useState(60) // 10 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(600) // 10 minutes in seconds
   const [otpId, setOtpId] = useState<string | null>(initialOtpId || null)
   const [verificationError, setVerificationError] = useState('')
   const [success, setSuccess] = useState('')

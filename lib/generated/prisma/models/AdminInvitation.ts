@@ -179,7 +179,7 @@ export type AdminInvitationGroupByOutputType = {
   _max: AdminInvitationMaxAggregateOutputType | null
 }
 
-export type GetAdminInvitationGroupByPayload<T extends AdminInvitationGroupByArgs> = Prisma.PrismaPromise<
+type GetAdminInvitationGroupByPayload<T extends AdminInvitationGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AdminInvitationGroupByOutputType, T['by']> &
       {

@@ -200,7 +200,7 @@ export type HODInvitationGroupByOutputType = {
   _max: HODInvitationMaxAggregateOutputType | null
 }
 
-export type GetHODInvitationGroupByPayload<T extends HODInvitationGroupByArgs> = Prisma.PrismaPromise<
+type GetHODInvitationGroupByPayload<T extends HODInvitationGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<HODInvitationGroupByOutputType, T['by']> &
       {

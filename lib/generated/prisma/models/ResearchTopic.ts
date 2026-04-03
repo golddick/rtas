@@ -248,7 +248,7 @@ export type ResearchTopicGroupByOutputType = {
   _max: ResearchTopicMaxAggregateOutputType | null
 }
 
-export type GetResearchTopicGroupByPayload<T extends ResearchTopicGroupByArgs> = Prisma.PrismaPromise<
+type GetResearchTopicGroupByPayload<T extends ResearchTopicGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ResearchTopicGroupByOutputType, T['by']> &
       {

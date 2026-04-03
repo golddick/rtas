@@ -23,7 +23,7 @@ export async function GET(request: Request) {
         { status: 401 }
       )
     }
-
+ 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       id: string

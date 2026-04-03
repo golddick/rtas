@@ -200,7 +200,7 @@ export type InstitutionGroupByOutputType = {
   _max: InstitutionMaxAggregateOutputType | null
 }
 
-export type GetInstitutionGroupByPayload<T extends InstitutionGroupByArgs> = Prisma.PrismaPromise<
+type GetInstitutionGroupByPayload<T extends InstitutionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<InstitutionGroupByOutputType, T['by']> &
       {

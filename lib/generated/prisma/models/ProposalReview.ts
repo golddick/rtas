@@ -213,7 +213,7 @@ export type ProposalReviewGroupByOutputType = {
   _max: ProposalReviewMaxAggregateOutputType | null
 }
 
-export type GetProposalReviewGroupByPayload<T extends ProposalReviewGroupByArgs> = Prisma.PrismaPromise<
+type GetProposalReviewGroupByPayload<T extends ProposalReviewGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ProposalReviewGroupByOutputType, T['by']> &
       {

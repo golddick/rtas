@@ -17,7 +17,7 @@ interface SendOTPResponse {
   error?: string;
 }
 
-const DROPAPHI_BASE_URL = process.env.NEXT_PUBLIC_DROPAPHI_URL || 'http://localhost:3001/api/v1'
+const DROPAPHI_BASE_URL = process.env.NEXT_PUBLIC_DROPAPHI_URL || 'https://dropaphi.vercel.app/api/v1'
 const DROPAPHI_KEY =  process.env.NEXT_PUBLIC_DROPAPHI_KEY || 'da_test__dtHFb0DfG';
 
 export async function sendOTP({

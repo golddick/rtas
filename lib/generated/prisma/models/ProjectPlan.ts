@@ -234,7 +234,7 @@ export type ProjectPlanGroupByOutputType = {
   _max: ProjectPlanMaxAggregateOutputType | null
 }
 
-export type GetProjectPlanGroupByPayload<T extends ProjectPlanGroupByArgs> = Prisma.PrismaPromise<
+type GetProjectPlanGroupByPayload<T extends ProjectPlanGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ProjectPlanGroupByOutputType, T['by']> &
       {
