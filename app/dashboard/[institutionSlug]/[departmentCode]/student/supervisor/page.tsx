@@ -83,7 +83,7 @@ export default function SupervisorPage() {
     }
     
     await requestSupervisor({
-      supervisorId: selectedSupervisorId,
+      supervisorId: selectedSupervisorId, 
       researchInterests: researchInterests.trim(),
       message: requestMessage
     })
@@ -147,9 +147,6 @@ export default function SupervisorPage() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button onClick={() => setShowRequestForm(true)}>
                     Request a Supervisor
-                  </Button>
-                  <Button variant="outline" onClick={() => router.push('/student/supervisors')}>
-                    Browse Supervisors
                   </Button>
                 </div>
               </CardContent>
@@ -216,10 +213,6 @@ export default function SupervisorPage() {
                   {
                     q: 'How do I request a supervisor?',
                     a: 'Click the "Request a Supervisor" button above and fill out the form with your research interests.',
-                  },
-                  {
-                    q: 'Can I request a specific supervisor?',
-                    a: 'Yes, you can browse available supervisors and request your preferred choice.',
                   },
                   {
                     q: 'How long does approval take?',

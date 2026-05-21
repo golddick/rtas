@@ -14,12 +14,12 @@ export interface UploadResponse {
 }
 
 const DROPAPI_BASE = process.env.NEXT_PUBLIC_DROPAPHI_URL || 'https://dropaphi.vercel.app/api/v1'
-const DROPAPI_KEY = process.env.DROPAPHI_API_KEY || 'da_test__dtHFb0DfG'
+const DROPAPI_KEY = process.env.DROPAPHI_API_KEY || 'da_test_ARmcX84_-d'
 
 export async function uploadFile(file: File, metadata?: {
   folder?: string
   filename?: string
-  description?: string
+  description?: string 
 }): Promise<UploadResponse> {
   try {
     const formData = new FormData()
@@ -32,10 +32,10 @@ export async function uploadFile(file: File, metadata?: {
     const response = await fetch(`${DROPAPI_BASE}/files/upload`, {
       method: 'POST',
       headers: {
-        'X-API-Key': DROPAPI_KEY || ''
+        'drop-api-key': DROPAPI_KEY || ''
       },
       body: formData
-    })
+    }) 
 
     const result = await response.json()
 
