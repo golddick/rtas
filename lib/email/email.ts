@@ -29,14 +29,14 @@ interface SendEmailResponse {
 }
 
 const DROPAPI_BASE = process.env.NEXT_PUBLIC_DROPAPHI_URL || 'https://dropaphi.vercel.app/api/v1'
-const DROPAPI_KEY = process.env.DROPAPHI_API_KEY || 'da_test__dtHFb0DfG'
+const DROPAPI_KEY = process.env.DROPAPHI_API_KEY || 'da_test_ARmcX84_-d'
 
 export async function sendDropAPIEmail({
   to,
   cc,
   bcc,
   subject,
-  html,
+  html, 
   text,
   fromName = 'RTAS',
   replyTo,
@@ -48,7 +48,7 @@ export async function sendDropAPIEmail({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': DROPAPI_KEY,
+        'drop-api-key': DROPAPI_KEY,
       },
       body: JSON.stringify({
         to,

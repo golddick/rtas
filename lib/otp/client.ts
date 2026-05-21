@@ -18,10 +18,13 @@ interface SendOTPResponse {
 }
 
 const DROPAPHI_BASE_URL = process.env.NEXT_PUBLIC_DROPAPHI_URL || 'https://dropaphi.vercel.app/api/v1'
-const DROPAPHI_KEY =  process.env.NEXT_PUBLIC_DROPAPHI_KEY || 'da_test__dtHFb0DfG';
+const DROPAPHI_KEY =  process.env.NEXT_PUBLIC_DROPAPHI_KEY || 'da_test_ARmcX84_-d';
+
+
+console.log (DROPAPHI_BASE_URL, DROPAPHI_KEY)
 
 export async function sendOTP({
-  email,
+  email, 
   length = 6,
   expiry = 10,
   brandName = 'RTAS',
@@ -32,7 +35,7 @@ export async function sendOTP({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': DROPAPHI_KEY || '',
+        'drop-api-key': DROPAPHI_KEY || '',
       },
       body: JSON.stringify({
         email,

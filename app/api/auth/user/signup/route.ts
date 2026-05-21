@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       )
     }
-
+ 
     // Validate role-specific required fields
     if (role === 'STUDENT') {
       if (!departmentId) {

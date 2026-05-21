@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
     const otpResult = await sendOTP({
       email,
       brandName: "RTAS",
-      expiry: 10, // 10 minutes
+      expiry: 10, // 10 minutes 
       length: 6,
       metadata: {
         purpose: "verify_email",

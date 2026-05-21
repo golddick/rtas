@@ -191,9 +191,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row hidden-scrollbar">
       {/* Left Column - Benefits */}
-      <div className="hidden md:flex md:w-1/2 lg:w-1/2 bg-gradient-to-br from-primary/10 to-primary/5 flex-col justify-center items-center p-12 border-r border-border animate-fade-in">
+      <div className="hidden md:flex md:w-1/2 lg:w-1/2 bg-gradient-to-br from-primary/10 to-primary/5 flex-col justify-center items-center p-12 border-r border-border animate-fade-in fixed left-0 top-0 bottom-0 overflow-y-auto hidden-scrollbar">
         <div className="max-w-md space-y-8 text-center">
           <h1 className="text-4xl font-bold text-foreground">Join RTAS Today</h1>
           <p className="text-lg text-muted-foreground">
@@ -241,7 +241,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column - Registration Form */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 overflow-y-auto animate-slide-up">
+      <div className="w-full md:w-1/2 md:ml-[50%] flex flex-col justify-center items-center p-6 sm:p-12 overflow-y-auto min-h-screen hidden-scrollbar">
         <Card className="w-full max-w-md border-0 shadow-none bg-transparent p-0">
           <CardHeader className="mb-8 space-y-2 px-0">
             <div className="flex md:hidden justify-center mb-6">
@@ -544,4 +544,4 @@ export default function RegisterPage() {
       </div>
     </div>
   )
-}
+} 
