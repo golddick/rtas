@@ -1,3 +1,5 @@
+
+
 // components/document-viewer.tsx - Fix the DocumentViewer component
 'use client'
 

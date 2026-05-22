@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
+import { dropid } from 'dropid'
 
 async function verifySupervisor() {
   const cookieStore = await cookies()
@@ -222,6 +223,7 @@ export async function PATCH(
     if (feedback) {
       await db.proposalReview.create({
         data: {
+          id: dropid('rev'),
           proposalId: id,
           reviewerId: auth.supervisor.id,
           feedback,
