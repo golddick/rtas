@@ -85,7 +85,7 @@ export async function verifyOTP({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': DROPAPHI_KEY || '',
+        'drop-api-key': DROPAPHI_KEY || '',
       },
       body: JSON.stringify({
         email,
@@ -133,7 +133,7 @@ export async function resendOTP({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': DROPAPHI_KEY || '',
+        'drop-api-key': DROPAPHI_KEY || '',
       },
       body: JSON.stringify({
         email,
